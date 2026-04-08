@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eifron Support Chat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --blue-deep:   #0B3079;
+    --blue-mid:    #1A5CB0;
+    --blue-light:  #2E82D4;
+    --bg:          #F2F6FB;
+    --surface:     #FFFFFF;
+    --border:      #D8E4F0;
+    --text:        #0F1E38;
+    --text-muted:  #5A6E85;
+    --red-bg:      #FDE8E8;   --red-fg:    #C0392B;
+    --orange-bg:   #FEF3E2;   --orange-fg: #C76D0E;
+    --blue-bg:     #E8F0FD;   --blue-fg:   #1A5CB0;
+    --shadow:      0 8px 40px rgba(11,48,121,.13);
+    --radius:      18px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .chat-container {
+    width: 460px; max-width: 96vw;
+    height: 760px; max-height: 96vh;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .chat-header {
+    background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-mid) 60%, var(--blue-light) 100%);
+    color: #fff; padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0; position: relative; overflow: hidden;
+  }
+  .chat-header::after {
+    content: ''; position: absolute; right: -40px; top: -40px;
+    width: 140px; height: 140px; border-radius: 50%;
+    background: rgba(255,255,255,.06); pointer-events: none;
+  }
+  .header-logo {
+    width: 46px; height: 46px;
+    background: rgba(255,255,255,.15); border: 1.5px solid rgba(255,255,255,.25);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .header-logo svg { width: 28px; height: 28px; }
+  .header-info { flex: 1; }
+  .header-info h2 { font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
+  .header-info .tagline { font-size: 10.5px; opacity: .72; margin-top: 2px; letter-spacing: .4px; text-transform: uppercase; }
+  .status-pill {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 500; flex-shrink: 0;
+  }
+  .status-dot {
+    width: 7px; height: 7px; background: #4AE896; border-radius: 50%;
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(.7); } }
+
+  /* ── Mode Bar ── */
+  .mode-bar {
+    display: flex; padding: 10px 16px 6px; gap: 8px;
+    flex-shrink: 0; border-bottom: 1px solid var(--border); background: #FAFCFF;
+  }
+  .mode-btn {
+    flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: var(--surface); font-family: inherit; font-size: 12.5px; font-weight: 600;
+    color: var(--text-muted); cursor: pointer; transition: all .18s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .mode-btn:hover { border-color: var(--blue-light); color: var(--blue-mid); }
+  .mode-btn.active { background: var(--blue-deep); border-color: var(--blue-deep); color: #fff; box-shadow: 0 2px 8px rgba(11,48,121,.25); }
+
+  /* ── Messages ── */
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 4px; scroll-behavior: smooth;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .msg-row { display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; }
+  .msg-row.bot  { align-items: flex-start; }
+  .msg-row.user { align-items: flex-end; }
+
+  .message {
+    max-width: 92%; padding: 12px 16px; border-radius: 16px;
+    font-size: 13.5px; line-height: 1.6; white-space: pre-line;
+    animation: fadeUp .22s ease; position: relative;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  .message.bot  { background: #EFF4FB; color: var(--text); border-bottom-left-radius: 4px; }
+  .message.user { background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid)); color: #fff; border-bottom-right-radius: 4px; }
+
+  .msg-time { font-size: 10.5px; color: #A0B2C6; padding: 0 4px; }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(255,255,255,.7); border: 1px solid var(--border);
+    border-radius: 6px; padding: 3px 7px; font-size: 11px;
+    cursor: pointer; color: var(--text-muted);
+    opacity: 0; transition: opacity .15s, background .15s;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .message.bot:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { background: #fff; color: var(--blue-mid); }
+  .copy-btn.copied { color: #1a8a50; border-color: #1a8a50; }
+
+  /* ── Tags ── */
+  .category-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 6px; margin-bottom: 8px;
+  }
+  .tag-red    { background: var(--red-bg);    color: var(--red-fg); }
+  .tag-orange { background: var(--orange-bg); color: var(--orange-fg); }
+  .tag-blue   { background: var(--blue-bg);   color: var(--blue-fg); }
+
+  .matched { font-size: 12px; color: var(--text-muted); font-style: italic; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* ── Related questions ── */
+  .related-section { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .related-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 7px; }
+  .related-btn {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    background: none; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 8px 12px; margin-bottom: 5px; font-family: inherit; font-size: 12.5px;
+    color: var(--text); cursor: pointer; transition: all .15s; text-align: left;
+  }
+  .related-btn:hover { border-color: var(--blue-light); background: var(--blue-bg); transform: translateX(2px); }
+  .related-btn .rel-icon { font-size: 13px; flex-shrink: 0; }
+  .related-btn .rel-text { flex: 1; font-weight: 500; }
+  .related-btn .rel-conf { font-size: 10px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
+
+  /* ── Nav buttons ── */
+  .nav-buttons { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 11px 14px; cursor: pointer;
+    transition: all .15s; text-align: left; font-family: inherit; font-size: 13px; color: var(--text);
+  }
+  .nav-btn:hover { border-color: var(--blue-light); background: var(--blue-bg); transform: translateX(3px); box-shadow: 0 2px 10px rgba(11,48,121,.1); }
+  .nav-btn .nav-icon { font-size: 20px; flex-shrink: 0; width: 30px; text-align: center; }
+  .nav-btn .nav-text { flex: 1; font-weight: 500; }
+  .nav-btn .nav-count { font-size: 11px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+  .nav-btn.q-btn { font-size: 12.5px; padding: 9px 12px; border-width: 1px; }
+  .nav-btn.q-btn .nav-icon { font-size: 14px; width: 22px; }
+
+  .back-row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .back-btn { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 4px 13px; font-family: inherit; font-size: 11.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all .15s; }
+  .back-btn:hover { border-color: var(--blue-light); color: var(--blue-mid); }
+
+  /* ── Typing ── */
+  .typing-indicator { align-self: flex-start; padding: 12px 18px; background: #EFF4FB; border-radius: 16px; border-bottom-left-radius: 4px; display: none; margin: 0 0 4px 0; }
+  .typing-indicator span { display: inline-block; width: 7px; height: 7px; background: var(--blue-light); border-radius: 50%; margin: 0 2px; animation: bounce .65s infinite alternate; }
+  .typing-indicator span:nth-child(2) { animation-delay: .15s; }
+  .typing-indicator span:nth-child(3) { animation-delay: .30s; }
+  @keyframes bounce { to { transform: translateY(-6px); opacity: .35; } }
+
+  /* ── Input ── */
+  .chat-input-area { padding: 10px 14px 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; background: #FAFCFF; }
+  .input-row { display: flex; gap: 8px; }
+  .chat-input-area input { flex: 1; padding: 10px 15px; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 13.5px; outline: none; transition: border-color .2s, box-shadow .2s; background: var(--surface); color: var(--text); }
+  .chat-input-area input:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(46,130,212,.12); }
+  .chat-input-area input::placeholder { color: #9BAFC5; }
+  .send-btn { background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid)); color: #fff; border: none; border-radius: 10px; padding: 0 18px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .send-btn:hover { filter: brightness(1.12); box-shadow: 0 4px 12px rgba(11,48,121,.3); }
+  .send-btn:disabled { opacity: .45; cursor: default; filter: none; box-shadow: none; }
+  .input-meta { display: flex; justify-content: flex-end; padding: 0 2px; }
+  .char-counter { font-size: 11px; color: #B0BEC8; transition: color .2s; }
+  .char-counter.warn  { color: #C76D0E; }
+  .char-counter.limit { color: var(--red-fg); font-weight: 600; }
+
+  .chat-footer { text-align: center; font-size: 10.5px; color: #B0BEC8; padding: 3px 0 6px; background: #FAFCFF; flex-shrink: 0; }
+  .chat-footer a { color: #9BAFC5; text-decoration: none; }
+  .chat-footer a:hover { color: var(--blue-mid); }
+</style>
+</head>
+<body>
+<div class="chat-container">
+
+  <div class="chat-header">
+    <div class="header-logo">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 14.5 Q8 8, 14 8 Q20 8, 23 14.5 Q20 21, 14 21 Q8 21, 5 14.5Z" stroke="white" stroke-width="1.6" fill="none" opacity=".6"/>
+        <path d="M8 14.5 H20" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="14" cy="14.5" r="3.2" fill="white"/>
+      </svg>
+    </div>
+    <div class="header-info">
+      <h2>Eifron Υποστήριξη</h2>
+      <div class="tagline">S9 · EasyPatch · CGM · Caring for you</div>
+    </div>
+    <div class="status-pill"><div class="status-dot"></div>Online</div>
+  </div>
+
+  <div class="mode-bar">
+    <button class="mode-btn active" id="btnBrowse" onclick="setMode('browse')">📂 Περιήγηση</button>
+    <button class="mode-btn" id="btnSearch" onclick="setMode('search')">🔍 Αναζήτηση</button>
+  </div>
+
+  <div class="chat-messages" id="messages"></div>
+  <div class="typing-indicator" id="typing"><span></span><span></span><span></span></div>
+
+  <div class="chat-input-area">
+    <div class="input-row">
+      <input type="text" id="userInput" maxlength="500"
+             placeholder="...ή γράψτε ελεύθερα την ερώτησή σας"
+             oninput="updateCounter()" onkeydown="if(event.key==='Enter')sendSearch()">
+      <button class="send-btn" onclick="sendSearch()" id="sendBtn">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10L18 2L12 10L18 18L2 10Z"/></svg>
+        Αποστολή
+      </button>
+    </div>
+    <div class="input-meta">
+      <span class="char-counter" id="charCounter">0 / 500</span>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <a href="https://www.eifron.com" target="_blank">eifron.com</a> &nbsp;·&nbsp; Θεσσαλονίκη, Ελλάδα
+  </div>
+
+</div>
+<script>
+const API = window.location.origin.includes("file://")
+  ? "http://localhost:5070"  // fallback when opening demo.html as file
+  : window.location.origin;  // when served by Flask
+const messagesEl = document.getElementById("messages");
+const inputEl    = document.getElementById("userInput");
+const typingEl   = document.getElementById("typing");
+const sendBtn    = document.getElementById("sendBtn");
+const counterEl  = document.getElementById("charCounter");
+
+function scroll() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+function clear()  { messagesEl.innerHTML = ""; }
+function esc(s)   { return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
+function nowHHMM() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+}
+
+function updateCounter() {
+  const len = inputEl.value.length;
+  counterEl.textContent = len + " / 500";
+  counterEl.className = "char-counter" + (len >= 500 ? " limit" : len >= 400 ? " warn" : "");
+}
+
+function copyText(el, btn) {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll(".copy-btn, .related-section, .back-row").forEach(e => e.remove());
+  navigator.clipboard.writeText(clone.innerText.trim()).then(() => {
+    btn.innerHTML = "✓ Αντιγράφηκε";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.innerHTML = "⎘ Αντιγραφή"; btn.classList.remove("copied"); }, 2000);
+  });
+}
+
+function addBot(html, withCopy = true) {
+  const row = document.createElement("div");
+  row.className = "msg-row bot";
+  const d = document.createElement("div");
+  d.className = "message bot";
+  if (withCopy) {
+    const btn = document.createElement("button");
+    btn.className = "copy-btn";
+    btn.innerHTML = "⎘ Αντιγραφή";
+    btn.onclick = () => copyText(d, btn);
+    d.appendChild(btn);
+  }
+  const content = document.createElement("div");
+  content.innerHTML = html;
+  d.appendChild(content);
+  row.appendChild(d);
+  const ts = document.createElement("div");
+  ts.className = "msg-time";
+  ts.textContent = nowHHMM();
+  row.appendChild(ts);
+  messagesEl.appendChild(row);
+  scroll();
+  return d;
+}
+
+function addUser(text) {
+  const row = document.createElement("div");
+  row.className = "msg-row user";
+  const d = document.createElement("div");
+  d.className = "message user";
+  d.textContent = text;
+  row.appendChild(d);
+  const ts = document.createElement("div");
+  ts.className = "msg-time";
+  ts.textContent = nowHHMM();
+  row.appendChild(ts);
+  messagesEl.appendChild(row);
+  scroll();
+}
+
+function tagClass(cat) {
+  if (!cat) return "tag-blue";
+  if (cat.includes("Κόκκινα"))   return "tag-red";
+  if (cat.includes("Πορτοκαλί")) return "tag-orange";
+  return "tag-blue";
+}
+function tagIcon(cat) {
+  if (!cat) return "ℹ️";
+  if (cat.includes("Κόκκινα"))   return "🔴";
+  if (cat.includes("Πορτοκαλί")) return "🟠";
+  return "🔵";
+}
+function confLabel(score) {
+  if (score >= 0.45) return "Υψηλή αντιστοιχία";
+  if (score >= 0.28) return "Πιθανή αντιστοιχία";
+  return "Χαμηλή αντιστοιχία";
+}
+
+function setMode(mode) {
+  document.getElementById("btnBrowse").classList.toggle("active", mode === "browse");
+  document.getElementById("btnSearch").classList.toggle("active", mode === "search");
+  clear();
+  if (mode === "browse") {
+    inputEl.placeholder = "...ή γράψτε ελεύθερα την ερώτησή σας";
+    showCategories();
+  } else {
+    inputEl.placeholder = "Γράψτε την ερώτησή σας...";
+    addBot("🔍 Γράψτε την ερώτησή σας και θα εντοπίσω την κατάλληλη απάντηση.", false);
+    inputEl.focus();
+  }
+}
+
+async function showCategories() {
+  try {
+    const res  = await fetch(`${API}/api/navigate`);
+    const data = await res.json();
+    let h = `<b>👋 Γεια σας!</b><br>Σε τι μπορώ να σας βοηθήσω σήμερα;<br><br>Επιλέξτε κατηγορία:`;
+    h += '<div class="nav-buttons">';
+    data.items.forEach(c => {
+      h += `<button class="nav-btn" onclick="showSubs('${esc(c.name)}')">
+        <span class="nav-icon">${c.icon}</span>
+        <span class="nav-text">${c.name}</span>
+        <span class="nav-count">${c.count} ερωτήσεις</span>
+      </button>`;
+    });
+    h += '</div>';
+    addBot(h, false);
+  } catch { addBot("⚠️ Αδυναμία σύνδεσης στον server. Βεβαιωθείτε ότι ο server τρέχει.", false); }
+}
+
+async function showSubs(category) {
+  clear();
+  try {
+    const res  = await fetch(`${API}/api/navigate?category=${encodeURIComponent(category)}`);
+    const data = await res.json();
+    const icon = {"Συναγερμοί (Κόκκινα)":"🔴","Ειδοποιήσεις (Πορτοκαλί)":"🟠","Γενικές Ερωτήσεις":"🔵"}[category] || "📋";
+    let h = `<div class="back-row"><button class="back-btn" onclick="goHome()">← Κατηγορίες</button></div>`;
+    h += `<b>${icon} ${category}</b><br><br>Επιλέξτε υποκατηγορία:`;
+    h += '<div class="nav-buttons">';
+    data.items.forEach(s => {
+      h += `<button class="nav-btn" onclick="showQs('${esc(category)}','${esc(s.name)}')">
+        <span class="nav-icon">${s.icon}</span>
+        <span class="nav-text">${s.name}</span>
+        <span class="nav-count">${s.count}</span>
+      </button>`;
+    });
+    h += '</div>';
+    addBot(h, false);
+  } catch { addBot("⚠️ Αδυναμία σύνδεσης.", false); }
+}
+
+async function showQs(category, subcategory) {
+  clear();
+  try {
+    const url = `${API}/api/navigate?category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(subcategory)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    let h = `<div class="back-row">
+      <button class="back-btn" onclick="showSubs('${esc(category)}')">← Πίσω</button>
+      <button class="back-btn" onclick="goHome()">🏠 Αρχή</button>
+    </div>`;
+    h += `<b>${subcategory}</b><br><br>Επιλέξτε ερώτηση:`;
+    h += '<div class="nav-buttons">';
+    data.items.forEach(q => {
+      let short = q.question_short;
+      if (short.length > 64) short = short.slice(0, 62) + "…";
+      h += `<button class="nav-btn q-btn" onclick="showAns(${q.id},'${esc(category)}','${esc(subcategory)}')">
+        <span class="nav-icon">❓</span>
+        <span class="nav-text">${short}</span>
+      </button>`;
+    });
+    h += '</div>';
+    addBot(h, false);
+  } catch { addBot("⚠️ Αδυναμία σύνδεσης.", false); }
+}
+
+async function showAns(id, category, subcategory) {
+  clear();
+  try {
+    const res  = await fetch(`${API}/api/navigate?id=${id}`);
+    const data = await res.json();
+    let h = `<div class="back-row">
+      <button class="back-btn" onclick="showQs('${esc(category)}','${esc(subcategory)}')">← Πίσω</button>
+      <button class="back-btn" onclick="goHome()">🏠 Αρχή</button>
+    </div>`;
+    h += `<span class="category-tag ${tagClass(data.category)}">${tagIcon(data.category)} ${data.category} › ${data.subcategory}</span>`;
+    h += `<div class="matched">📌 ${data.question}</div>`;
+    h += data.answer.replace(/\n/g, "<br>");
+    addBot(h);
+  } catch { addBot("⚠️ Αδυναμία σύνδεσης.", false); }
+}
+
+function goHome() { clear(); showCategories(); }
+
+async function sendSearch() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+  addUser(text);
+  inputEl.value = ""; updateCounter();
+  sendBtn.disabled = true;
+  typingEl.style.display = "block"; scroll();
+  try {
+    const res  = await fetch(`${API}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text }),
+    });
+    const data = await res.json();
+    typingEl.style.display = "none";
+    if (data.is_fallback) {
+      addBot(data.answer.replace(/\n/g, "<br>"), false);
+    } else {
+      let h = `<span class="category-tag ${tagClass(data.category)}">${tagIcon(data.category)} ${data.category}</span>`;
+      if (data.subcategory) h += ` <span class="category-tag tag-blue" style="margin-left:4px">${data.subcategory}</span>`;
+      h += `<div class="matched">📌 ${data.matched_question}</div>`;
+      h += data.answer.replace(/\n/g, "<br>");
+      if (data.related_questions && data.related_questions.length > 0) {
+        h += `<div class="related-section"><div class="related-label">💡 Μήπως εννοείτε;</div>`;
+        data.related_questions.forEach(r => {
+          let short = r.question.length > 72 ? r.question.slice(0, 70) + "…" : r.question;
+          h += `<button class="related-btn" onclick="fetchRelated('${esc(r.question)}')">
+            <span class="rel-icon">${tagIcon(r.category)}</span>
+            <span class="rel-text">${short}</span>
+            <span class="rel-conf">${confLabel(r.confidence)}</span>
+          </button>`;
+        });
+        h += `</div>`;
+      }
+      addBot(h);
+    }
+  } catch {
+    typingEl.style.display = "none";
+    addBot("⚠️ Αδυναμία σύνδεσης. Βεβαιωθείτε ότι ο server τρέχει στο <b>localhost:5070</b>.", false);
+  }
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+async function fetchRelated(question) {
+  addUser(question);
+  typingEl.style.display = "block"; scroll();
+  try {
+    const res  = await fetch(`${API}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: question }),
+    });
+    const data = await res.json();
+    typingEl.style.display = "none";
+    if (data.is_fallback) {
+      addBot(data.answer.replace(/\n/g, "<br>"), false);
+    } else {
+      let h = `<span class="category-tag ${tagClass(data.category)}">${tagIcon(data.category)} ${data.category}</span>`;
+      if (data.subcategory) h += ` <span class="category-tag tag-blue" style="margin-left:4px">${data.subcategory}</span>`;
+      h += `<div class="matched">📌 ${data.matched_question}</div>`;
+      h += data.answer.replace(/\n/g, "<br>");
+      addBot(h);
+    }
+  } catch {
+    typingEl.style.display = "none";
+    addBot("⚠️ Αδυναμία σύνδεσης.", false);
+  }
+}
+
+showCategories();
+</script>
+</body>
+</html>
