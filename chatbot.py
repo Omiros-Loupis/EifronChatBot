@@ -28,23 +28,25 @@ else:
         return response
 
 # ─────────────────────────────────────────────
-# Στοιχεία επικοινωνίας Eifron
+# Στοιχεία επικοινωνίας Eifron Diabetes
 # ─────────────────────────────────────────────
 CONTACT_INFO = {
     "phone": "+30 2310 461 000",
+    "phone_support": "+30 6949 999 1111",  # Τεχνική Υποστήριξη 24/7
     "email": "info@eifron.com",
-    "address": "Λεωφόρος Πολυγύρου 32, Θέρμη, Θεσσαλονίκη",
+    "address": "Λεωφ. Πολυγύρου 32, ΤΚ 57001, Θέρμη, Θεσσαλονίκη",
     "hours": "Δευτέρα – Παρασκευή, 09:00 – 17:00",
-    "website": "https://www.eifron.com",
+    "support_hours": "24/7",
+    "website": "https://eifron-diabetes.gr",
 }
 
 FALLBACK_MESSAGE = (
     "Δυστυχώς δεν μπορώ να απαντήσω σε αυτή την ερώτηση. "
     "Παρακαλώ επικοινωνήστε με την ομάδα υποστήριξης της Eifron:\n\n"
-    f"📞 Τηλέφωνο: {CONTACT_INFO['phone']}\n"
+    f"📞 Τηλεφωνικό Κέντρο: {CONTACT_INFO['phone']}\n"
+    f"📱 Τεχνική Υποστήριξη (24/7): {CONTACT_INFO['phone_support']}\n"
     f"📧 Email: {CONTACT_INFO['email']}\n"
-    f"🕐 Ωράριο: {CONTACT_INFO['hours']}\n"
-    f"🌐 Website: {CONTACT_INFO['website']}"
+    f"🌐 {CONTACT_INFO['website']}"
 )
 
 CONFIDENCE_THRESHOLD = 0.28  # ανεβάσαμε για λιγότερα false positives
@@ -956,7 +958,7 @@ def chat():
 
     if msg_lower in THANKS or any(msg_lower.startswith(t) for t in THANKS):
         return jsonify({
-            "answer": "Παρακαλώ! 😊 Αν χρειαστείτε κάτι ακόμα, είμαι εδώ.\n\nΓια θέματα που δεν μπορώ να καλύψω, μπορείτε να επικοινωνήσετε μαζί μας στο 📞 " + CONTACT_INFO['phone'],
+            "answer": "Παρακαλώ! 😊 Αν χρειαστείτε κάτι ακόμα, είμαι εδώ.\n\nΓια θέματα που δεν μπορώ να καλύψω:\n📱 Τεχνική Υποστήριξη (24/7): " + CONTACT_INFO['phone_support'] + "\n📞 Τηλεφωνικό Κέντρο: " + CONTACT_INFO['phone'],
             "matched_question": None,
             "category": None,
             "confidence": 1.0,

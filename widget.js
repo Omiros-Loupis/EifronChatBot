@@ -17,7 +17,7 @@
     {
       position: "right",       // "right" ή "left"
       color: "#0d6e3f",
-      title: "Eifron Υποστήριξη",
+      title: "Eifron Diabetes Υποστήριξη",
       subtitle: "Αντλία S9 · EasyPatch · CGM",
       greeting: "Γεια σας! 👋 Πώς μπορώ να σας βοηθήσω;",
       // Auto-detect API URL: ίδιο origin αν σερβίρεται από Flask, αλλιώς fallback
