@@ -1436,6 +1436,9 @@ class FAQEngine:
 
 engine = FAQEngine(FAQ)
 
+# ── 🎯 Exact-match lookup (O(1) — για disambiguation clicks) ──
+QUESTION_LOOKUP = {normalise(item["question"]): item for item in FAQ}
+
 
 # ─────────────────────────────────────────────
 # Navigation Tree — ανά προϊόν
@@ -1552,6 +1555,27 @@ def chat():
             "answer": "Παρακαλώ! 😊 Αν χρειαστείτε κάτι ακόμα, είμαι εδώ.\n\nΓια θέματα που δεν μπορώ να καλύψω:\n📱 Τεχνική Υποστήριξη (24/7): " + CONTACT_INFO['phone_support'] + "\n📞 Τηλεφωνικό Κέντρο: " + CONTACT_INFO['phone'],
             "matched_question": None, "product": None,
             "confidence": 1.0, "is_fallback": False, "is_greeting": True,
+        })
+
+    # ── 🎯 Exact match shortcut: όταν ο χρήστης κάνει click σε disambiguation
+    #    option, το text έρχεται verbatim. Παράκαμψη fuzzy search.
+    exact_match = QUESTION_LOOKUP.get(msg_norm)
+    if exact_match:
+        item = exact_match
+        track_chat(session_id, item["question"], item["product"], False)
+        set_session(session_id, item["question"], item["answer"], item["product"])
+        sev = item.get("severity", "blue")
+        return jsonify({
+            "answer": item["answer"],
+            "matched_question": item["question"],
+            "product": item["product"],
+            "severity": sev,
+            "severity_label": SEVERITY_META.get(sev, {}).get("label", ""),
+            "severity_icon": SEVERITY_META.get(sev, {}).get("icon", "🔵"),
+            "confidence": 1.0,
+            "related_questions": [],
+            "is_disambiguation": False,
+            "is_fallback": False,
         })
 
     # ── 🧠 Session Context: αν μικρό μήνυμα, εμπλούτισε από ιστορικό ──
