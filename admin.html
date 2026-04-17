@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eifron Bot — Admin Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  :root { --blue:#0B3079; --accent:#1A5CB0; --green:#2E7D32; --red:#C0392B; --orange:#C76D0E; --bg:#F0F4F8; --card:#fff; --text:#1a1a2e; --muted:#6b7280; --border:#e2e8f0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  .topbar { background:linear-gradient(135deg,var(--blue),var(--accent)); color:#fff; padding:16px 24px; display:flex; align-items:center; gap:14px; }
+  .topbar h1 { font-size:18px; font-weight:700; }
+  .topbar .sub { font-size:12px; opacity:.7; margin-top:2px; }
+  .topbar .refresh { margin-left:auto; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:#fff; padding:6px 14px; border-radius:8px; font-family:inherit; font-size:12px; cursor:pointer; }
+  .topbar .refresh:hover { background:rgba(255,255,255,.25); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; padding:20px 24px 10px; }
+  .stat-card { background:var(--card); border-radius:12px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .stat-card .label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); margin-bottom:4px; }
+  .stat-card .value { font-size:28px; font-weight:700; color:var(--blue); }
+  .stat-card .value.green { color:var(--green); }
+  .stat-card .value.red { color:var(--red); }
+  .stat-card .value.orange { color:var(--orange); }
+  .content { padding:10px 24px 30px; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:800px) { .content { grid-template-columns:1fr; } }
+  .panel { background:var(--card); border-radius:12px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .panel h2 { font-size:14px; font-weight:700; color:var(--blue); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .panel.full { grid-column:1/-1; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th { text-align:left; font-weight:600; color:var(--muted); padding:6px 8px; border-bottom:2px solid var(--border); font-size:11px; text-transform:uppercase; letter-spacing:.3px; }
+  td { padding:7px 8px; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  .count-bar { display:inline-block; height:6px; background:var(--accent); border-radius:3px; margin-right:6px; vertical-align:middle; min-width:4px; }
+  .log-entry { font-size:12px; padding:6px 0; border-bottom:1px solid var(--border); line-height:1.5; word-break:break-word; }
+  .log-entry:last-child { border-bottom:none; }
+  .log-entry .ts { color:var(--muted); font-size:11px; }
+  .badge { display:inline-block; padding:1px 7px; border-radius:6px; font-size:10px; font-weight:600; }
+  .badge.pos { background:#e8f5e9; color:var(--green); }
+  .badge.neg { background:#fde8e8; color:var(--red); }
+  .empty { color:var(--muted); font-style:italic; font-size:13px; padding:12px 0; }
+  .ticket-entry { font-size:12px; padding:8px 0; border-bottom:1px solid var(--border); white-space:pre-line; }
+  #loading { text-align:center; padding:40px; color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <h1>📊 Eifron Bot Dashboard</h1>
+    <div class="sub">Πίνακας ελέγχου chatbot — eifron-diabetes.gr</div>
+  </div>
+  <button class="refresh" onclick="loadStats()">↻ Ανανέωση</button>
+</div>
+
+<div class="grid" id="statsGrid">
+  <div id="loading">Φόρτωση...</div>
+</div>
+
+<div class="content" id="panels" style="display:none">
+  <!-- Top Questions -->
+  <div class="panel">
+    <h2>🏆 Top Ερωτήσεις</h2>
+    <table><thead><tr><th>Ερώτηση</th><th style="width:60px">Φορές</th></tr></thead>
+    <tbody id="topQuestions"></tbody></table>
+  </div>
+
+  <!-- Products -->
+  <div class="panel">
+    <h2>📦 Ανά Προϊόν</h2>
+    <table><thead><tr><th>Προϊόν</th><th style="width:60px">Ερωτ.</th></tr></thead>
+    <tbody id="topProducts"></tbody></table>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      <h2 style="margin-bottom:8px">📝 Πρόσφατο Feedback</h2>
+      <div id="feedbackLog"></div>
+    </div>
+  </div>
+
+  <!-- Unanswered -->
+  <div class="panel">
+    <h2>❓ Αναπάντητες Ερωτήσεις</h2>
+    <div id="unanswered"></div>
+  </div>
+
+  <!-- Tickets -->
+  <div class="panel">
+    <h2>✉️ Tickets Υποστήριξης</h2>
+    <div id="tickets"></div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+
+async function loadStats() {
+  function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  try {
+    const res = await fetch(`${API}/api/admin/stats`);
+    const d = await res.json();
+
+    // Stat cards
+    document.getElementById("statsGrid").innerHTML = `
+      <div class="stat-card"><div class="label">Σημερινοί χρήστες</div><div class="value">${d.today_sessions}</div></div>
+      <div class="stat-card"><div class="label">Συνολικά chats</div><div class="value">${d.total_chats}</div></div>
+      <div class="stat-card"><div class="label">Συνολικοί χρήστες</div><div class="value">${d.total_sessions}</div></div>
+      <div class="stat-card"><div class="label">Αναπάντητα</div><div class="value red">${d.fallback_count}</div></div>
+      <div class="stat-card"><div class="label">👍 Θετικά</div><div class="value green">${d.feedback_positive}</div></div>
+      <div class="stat-card"><div class="label">👎 Αρνητικά</div><div class="value orange">${d.feedback_negative}</div></div>
+      <div class="stat-card"><div class="label">FAQ entries</div><div class="value">${d.faq_count}</div></div>
+    `;
+
+    // Top questions
+    const tq = document.getElementById("topQuestions");
+    const maxCount = d.top_questions[0]?.count || 1;
+    tq.innerHTML = d.top_questions.length
+      ? d.top_questions.map(q => {
+          const w = Math.max(4, (q.count/maxCount)*100);
+          const short = q.question.length > 55 ? q.question.substring(0,52)+"..." : q.question;
+          return `<tr><td title="${escHtml(q.question)}">${escHtml(short)}</td><td><span class="count-bar" style="width:${w}px"></span>${q.count}</td></tr>`;
+        }).join("")
+      : '<tr><td colspan="2" class="empty">Δεν υπάρχουν δεδομένα ακόμα</td></tr>';
+
+    // Products
+    const tp = document.getElementById("topProducts");
+    tp.innerHTML = d.top_products.length
+      ? d.top_products.map(p => `<tr><td>${p.product}</td><td>${p.count}</td></tr>`).join("")
+      : '<tr><td colspan="2" class="empty">—</td></tr>';
+
+    // Feedback log
+    const fl = document.getElementById("feedbackLog");
+    fl.innerHTML = d.feedback_log.length
+      ? d.feedback_log.slice(0,15).map(line => {
+          const isPos = line.includes("ΘΕΤΙΚΗ");
+          return `<div class="log-entry"><span class="badge ${isPos?'pos':'neg'}">${isPos?'👍':'👎'}</span> ${escHtml(line.substring(22))}</div>`;
+        }).join("")
+      : '<div class="empty">Δεν υπάρχει feedback ακόμα</div>';
+
+    // Unanswered
+    const ua = document.getElementById("unanswered");
+    ua.innerHTML = d.unanswered.length
+      ? d.unanswered.slice(0,30).map(line => {
+          const parts = line.split("] ");
+          const ts = parts[0] || "";
+          const q = parts[1] || line;
+          return `<div class="log-entry"><span class="ts">${escHtml(ts)}]</span> ${escHtml(q)}</div>`;
+        }).join("")
+      : '<div class="empty">Καμία αναπάντητη ερώτηση! 🎉</div>';
+
+    // Tickets
+    const tk = document.getElementById("tickets");
+    tk.innerHTML = d.tickets.length
+      ? d.tickets.slice(0,15).map(t => `<div class="ticket-entry">${escHtml(t)}</div>`).join("")
+      : '<div class="empty">Δεν υπάρχουν tickets ακόμα</div>';
+
+    document.getElementById("panels").style.display = "";
+
+  } catch(e) {
+    document.getElementById("statsGrid").innerHTML = '<div style="padding:20px;color:var(--red)">⚠️ Σφάλμα φόρτωσης. Βεβαιωθείτε ότι ο server τρέχει.</div>';
+    console.error(e);
+  }
+}
+
+loadStats();
+// Auto-refresh every 30 seconds
+setInterval(loadStats, 30000);
+</script>
+</body>
+</html>

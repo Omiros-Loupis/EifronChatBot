@@ -19,6 +19,7 @@
     --red-bg:      #FDE8E8;   --red-fg:    #C0392B;
     --orange-bg:   #FEF3E2;   --orange-fg: #C76D0E;
     --blue-bg:     #E8F0FD;   --blue-fg:   #1A5CB0;
+    --green-bg:    #E8F5E9;   --green-fg:  #2E7D32;
     --shadow:      0 8px 40px rgba(11,48,121,.13);
     --radius:      18px;
   }
@@ -129,11 +130,12 @@
   .category-tag {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 10.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
-    padding: 3px 9px; border-radius: 6px; margin-bottom: 8px;
+    padding: 3px 9px; border-radius: 6px; margin-bottom: 4px;
   }
   .tag-red    { background: var(--red-bg);    color: var(--red-fg); }
   .tag-orange { background: var(--orange-bg); color: var(--orange-fg); }
   .tag-blue   { background: var(--blue-bg);   color: var(--blue-fg); }
+  .tag-green  { background: var(--green-bg);  color: var(--green-fg); }
 
   .matched { font-size: 12px; color: var(--text-muted); font-style: italic; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 
@@ -148,7 +150,7 @@
   }
   .related-btn:hover { border-color: var(--blue-light); background: var(--blue-bg); transform: translateX(2px); }
   .related-btn .rel-icon { font-size: 13px; flex-shrink: 0; }
-  .related-btn .rel-text { flex: 1; font-weight: 500; }
+  .related-btn .rel-text { flex: 1; font-weight: 500; word-break: break-word; line-height: 1.4; }
   .related-btn .rel-conf { font-size: 10px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
 
   /* ── Nav buttons ── */
@@ -161,10 +163,16 @@
   }
   .nav-btn:hover { border-color: var(--blue-light); background: var(--blue-bg); transform: translateX(3px); box-shadow: 0 2px 10px rgba(11,48,121,.1); }
   .nav-btn .nav-icon { font-size: 20px; flex-shrink: 0; width: 30px; text-align: center; }
-  .nav-btn .nav-text { flex: 1; font-weight: 500; }
+  .nav-btn .nav-text { flex: 1; font-weight: 500; word-break: break-word; line-height: 1.4; }
   .nav-btn .nav-count { font-size: 11px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
   .nav-btn.q-btn { font-size: 12.5px; padding: 9px 12px; border-width: 1px; }
   .nav-btn.q-btn .nav-icon { font-size: 14px; width: 22px; }
+
+  /* severity dots on question buttons */
+  .sev-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sev-red { background: var(--red-fg); }
+  .sev-orange { background: var(--orange-fg); }
+  .sev-blue { background: var(--blue-fg); }
 
   .back-row { display: flex; gap: 6px; margin-bottom: 8px; }
   .back-btn { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 4px 13px; font-family: inherit; font-size: 11.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all .15s; }
@@ -194,6 +202,37 @@
   .chat-footer { text-align: center; font-size: 10.5px; color: #B0BEC8; padding: 3px 0 6px; background: #FAFCFF; flex-shrink: 0; }
   .chat-footer a { color: #9BAFC5; text-decoration: none; }
   .chat-footer a:hover { color: var(--blue-mid); }
+
+  /* ── Ticket Form ── */
+  .ticket-form { margin-top: 12px; padding: 12px; background: var(--blue-bg); border-radius: 10px; }
+  .ticket-form label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px; }
+  .ticket-form input, .ticket-form textarea {
+    width: 100%; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 12.5px; margin-bottom: 8px; outline: none; background: var(--surface);
+  }
+  .ticket-form input:focus, .ticket-form textarea:focus { border-color: var(--blue-light); }
+  .ticket-form textarea { resize: vertical; min-height: 50px; }
+  .ticket-submit {
+    background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid)); color: #fff;
+    border: none; border-radius: 8px; padding: 8px 16px; font-family: inherit; font-size: 12.5px;
+    font-weight: 600; cursor: pointer; transition: all .2s; width: 100%;
+  }
+  .ticket-submit:hover { filter: brightness(1.1); }
+  .ticket-submit:disabled { opacity: .5; cursor: default; }
+  .ticket-success { font-size: 12px; color: #1a8a50; font-weight: 500; text-align: center; padding: 10px; }
+
+/* ── Feedback UI ── */
+  .feedback-ui {
+    margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .feedback-btn {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 4px 8px; font-size: 14px; cursor: pointer;
+    transition: all .2s; display: flex; align-items: center; justify-content: center;
+  }
+  .feedback-btn:hover { border-color: var(--blue-light); background: var(--blue-bg); transform: scale(1.05); }
+  .feedback-msg { font-size: 11.5px; font-weight: 500; color: #1a8a50; }
 </style>
 </head>
 <body>
@@ -238,14 +277,16 @@
   </div>
 
   <div class="chat-footer">
-    <a href="https://www.eifron.com" target="_blank">eifron.com</a> &nbsp;·&nbsp; Θεσσαλονίκη, Ελλάδα
+    <a href="https://eifron-diabetes.gr" target="_blank">eifron-diabetes.gr</a> &nbsp;·&nbsp; Θεσσαλονίκη, Ελλάδα
   </div>
 
 </div>
 <script>
 const API = window.location.origin.includes("file://")
-  ? "http://localhost:5070"  // fallback when opening demo.html as file
-  : window.location.origin;  // when served by Flask
+  ? "http://localhost:5070"
+  : window.location.origin;
+const SESSION_ID = 'ses-' + Math.random().toString(36).substr(2,12) + Date.now().toString(36);
+let chatHistory = [];
 const messagesEl = document.getElementById("messages");
 const inputEl    = document.getElementById("userInput");
 const typingEl   = document.getElementById("typing");
@@ -254,7 +295,12 @@ const counterEl  = document.getElementById("charCounter");
 
 function scroll() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 function clear()  { messagesEl.innerHTML = ""; }
-function esc(s)   { return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
+function esc(s) {
+  return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n").replace(/\r/g,"");
+}
+function escHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
 function nowHHMM() {
   const d = new Date();
   return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
@@ -316,22 +362,18 @@ function addUser(text) {
   scroll();
 }
 
-function tagClass(cat) {
-  if (!cat) return "tag-blue";
-  if (cat.includes("Κόκκινα"))   return "tag-red";
-  if (cat.includes("Πορτοκαλί")) return "tag-orange";
+function sevClass(sev) {
+  if (sev === "red") return "tag-red";
+  if (sev === "orange") return "tag-orange";
   return "tag-blue";
 }
-function tagIcon(cat) {
-  if (!cat) return "ℹ️";
-  if (cat.includes("Κόκκινα"))   return "🔴";
-  if (cat.includes("Πορτοκαλί")) return "🟠";
-  return "🔵";
+function sevDot(sev) {
+  return `<span class="sev-dot sev-${sev || 'blue'}"></span>`;
 }
 function confLabel(score) {
-  if (score >= 0.45) return "Υψηλή αντιστοιχία";
-  if (score >= 0.28) return "Πιθανή αντιστοιχία";
-  return "Χαμηλή αντιστοιχία";
+  if (score >= 0.45) return "Υψηλή";
+  if (score >= 0.25) return "Πιθανή";
+  return "Χαμηλή";
 }
 
 function setMode(mode) {
@@ -340,25 +382,26 @@ function setMode(mode) {
   clear();
   if (mode === "browse") {
     inputEl.placeholder = "...ή γράψτε ελεύθερα την ερώτησή σας";
-    showCategories();
+    showProducts();
   } else {
     inputEl.placeholder = "Γράψτε την ερώτησή σας...";
-    addBot("🔍 Γράψτε την ερώτησή σας και θα εντοπίσω την κατάλληλη απάντηση.", false);
+    addBot("🔍 Γράψτε την ερώτησή σας και θα εντοπίσω την κατάλληλη απάντηση.<br><br><em style='font-size:12px;color:var(--text-muted)'>Μπορείτε να γράψετε με δικά σας λόγια — π.χ. «μου έβγαλε σφάλμα το patch» ή «ξεκόλλησε ο αισθητήρας».</em>", false);
     inputEl.focus();
   }
 }
 
-async function showCategories() {
+// ── Product-based navigation ──
+async function showProducts() {
   try {
     const res  = await fetch(`${API}/api/navigate`);
     const data = await res.json();
-    let h = `<b>👋 Γεια σας!</b><br>Σε τι μπορώ να σας βοηθήσω σήμερα;<br><br>Επιλέξτε κατηγορία:`;
+    let h = `<b>👋 Γεια σας!</b><br>Σε τι μπορώ να σας βοηθήσω σήμερα;<br><br>Επιλέξτε προϊόν:`;
     h += '<div class="nav-buttons">';
-    data.items.forEach(c => {
-      h += `<button class="nav-btn" onclick="showSubs('${esc(c.name)}')">
-        <span class="nav-icon">${c.icon}</span>
-        <span class="nav-text">${c.name}</span>
-        <span class="nav-count">${c.count} ερωτήσεις</span>
+    data.items.forEach(p => {
+      h += `<button class="nav-btn" onclick="showQuestions('${esc(p.name)}')">
+        <span class="nav-icon">${p.icon}</span>
+        <span class="nav-text">${p.name}</span>
+        <span class="nav-count">${p.count} ερωτήσεις</span>
       </button>`;
     });
     h += '</div>';
@@ -366,45 +409,18 @@ async function showCategories() {
   } catch { addBot("⚠️ Αδυναμία σύνδεσης στον server. Βεβαιωθείτε ότι ο server τρέχει.", false); }
 }
 
-async function showSubs(category) {
+async function showQuestions(product) {
   clear();
   try {
-    const res  = await fetch(`${API}/api/navigate?category=${encodeURIComponent(category)}`);
+    const res  = await fetch(`${API}/api/navigate?product=${encodeURIComponent(product)}`);
     const data = await res.json();
-    const icon = {"Συναγερμοί (Κόκκινα)":"🔴","Ειδοποιήσεις (Πορτοκαλί)":"🟠","Γενικές Ερωτήσεις":"🔵"}[category] || "📋";
-    let h = `<div class="back-row"><button class="back-btn" onclick="goHome()">← Κατηγορίες</button></div>`;
-    h += `<b>${icon} ${category}</b><br><br>Επιλέξτε υποκατηγορία:`;
-    h += '<div class="nav-buttons">';
-    data.items.forEach(s => {
-      h += `<button class="nav-btn" onclick="showQs('${esc(category)}','${esc(s.name)}')">
-        <span class="nav-icon">${s.icon}</span>
-        <span class="nav-text">${s.name}</span>
-        <span class="nav-count">${s.count}</span>
-      </button>`;
-    });
-    h += '</div>';
-    addBot(h, false);
-  } catch { addBot("⚠️ Αδυναμία σύνδεσης.", false); }
-}
-
-async function showQs(category, subcategory) {
-  clear();
-  try {
-    const url = `${API}/api/navigate?category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(subcategory)}`;
-    const res  = await fetch(url);
-    const data = await res.json();
-    let h = `<div class="back-row">
-      <button class="back-btn" onclick="showSubs('${esc(category)}')">← Πίσω</button>
-      <button class="back-btn" onclick="goHome()">🏠 Αρχή</button>
-    </div>`;
-    h += `<b>${subcategory}</b><br><br>Επιλέξτε ερώτηση:`;
+    let h = `<div class="back-row"><button class="back-btn" onclick="goHome()">← Προϊόντα</button></div>`;
+    h += `<b>${data.icon} ${product}</b> <span style="font-size:12px;color:var(--text-muted)">(${data.items.length} ερωτήσεις)</span><br><br>Επιλέξτε ερώτηση:`;
     h += '<div class="nav-buttons">';
     data.items.forEach(q => {
-      let short = q.question_short;
-      if (short.length > 64) short = short.slice(0, 62) + "…";
-      h += `<button class="nav-btn q-btn" onclick="showAns(${q.id},'${esc(category)}','${esc(subcategory)}')">
-        <span class="nav-icon">❓</span>
-        <span class="nav-text">${short}</span>
+      h += `<button class="nav-btn q-btn" onclick="showAnswer(${q.id},'${esc(product)}')">
+        <span class="nav-icon">${sevDot(q.severity)}</span>
+        <span class="nav-text">${q.question_short}</span>
       </button>`;
     });
     h += '</div>';
@@ -412,28 +428,101 @@ async function showQs(category, subcategory) {
   } catch { addBot("⚠️ Αδυναμία σύνδεσης.", false); }
 }
 
-async function showAns(id, category, subcategory) {
+async function showAnswer(id, product) {
   clear();
   try {
     const res  = await fetch(`${API}/api/navigate?id=${id}`);
     const data = await res.json();
     let h = `<div class="back-row">
-      <button class="back-btn" onclick="showQs('${esc(category)}','${esc(subcategory)}')">← Πίσω</button>
+      <button class="back-btn" onclick="showQuestions('${esc(product)}')">← Πίσω</button>
       <button class="back-btn" onclick="goHome()">🏠 Αρχή</button>
     </div>`;
-    h += `<span class="category-tag ${tagClass(data.category)}">${tagIcon(data.category)} ${data.category} › ${data.subcategory}</span>`;
+    h += `<span class="category-tag tag-green">${data.product}</span> `;
+    h += `<span class="category-tag ${sevClass(data.severity)}">${data.severity_icon} ${data.severity_label}</span>`;
     h += `<div class="matched">📌 ${data.question}</div>`;
     h += data.answer.replace(/\n/g, "<br>");
     addBot(h);
   } catch { addBot("⚠️ Αδυναμία σύνδεσης.", false); }
 }
 
-function goHome() { clear(); showCategories(); }
+function goHome() { clear(); showProducts(); }
+
+async function sendFeedback(score, question, containerId, userMsg) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.innerHTML = `<span class="feedback-msg">✓ Ευχαριστούμε για την αξιολόγηση!</span>`;
+  }
+  try {
+    await fetch(`${API}/api/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ score, question, user_message: userMsg || "" })
+    });
+  } catch (e) { console.error("Feedback error", e); }
+}
+
+function getFeedbackHTML(question, userMsg) {
+  const id = "fb-" + Math.random().toString(36).substr(2, 9);
+  const safeQ = esc(question);
+  const safeU = esc(userMsg || "");
+  return `
+    <div class="feedback-ui" id="${id}">
+      <span style="font-size:11px;color:var(--text-muted)">Σας βοήθησε η απάντηση;</span>
+      <button class="feedback-btn" title="Ναι" onclick="sendFeedback(1, '${safeQ}', '${id}', '${safeU}')">👍</button>
+      <button class="feedback-btn" title="Όχι" onclick="sendFeedback(-1, '${safeQ}', '${id}', '${safeU}')">👎</button>
+    </div>
+  `;
+}
+
+function getTicketFormHTML() {
+  const id = "tk-" + Math.random().toString(36).substr(2, 9);
+  return `
+    <div class="ticket-form" id="${id}">
+      <label>✉️ Αποστολή ερωτήματος στην υποστήριξη:</label>
+      <input type="email" id="${id}-email" placeholder="Το email σας..." />
+      <textarea id="${id}-desc" placeholder="Περιγράψτε το πρόβλημά σας (προαιρετικά)..."></textarea>
+      <button class="ticket-submit" onclick="submitTicket('${id}')">Αποστολή ερωτήματος</button>
+    </div>
+  `;
+}
+
+async function submitTicket(formId) {
+  const form = document.getElementById(formId);
+  const emailEl = document.getElementById(formId + "-email");
+  const descEl = document.getElementById(formId + "-desc");
+  const btn = form.querySelector(".ticket-submit");
+  const email = emailEl.value.trim();
+  const desc = descEl.value.trim();
+
+  if (!email || !email.includes("@")) {
+    emailEl.style.borderColor = "var(--red-fg)";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Αποστολή...";
+
+  // Build history from chatHistory array
+  const historyText = chatHistory.map(h => `${h.role}: ${h.text}`).join("\n");
+
+  try {
+    const res = await fetch(`${API}/api/ticket`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, question: desc || chatHistory[chatHistory.length-1]?.text || "", history: historyText })
+    });
+    const data = await res.json();
+    form.innerHTML = `<div class="ticket-success">✅ ${data.message || "Καταγράφηκε!"}</div>`;
+  } catch {
+    form.innerHTML = `<div class="ticket-success" style="color:var(--red-fg)">⚠️ Σφάλμα αποστολής. Δοκιμάστε ξανά αργότερα.</div>`;
+  }
+}
 
 async function sendSearch() {
   const text = inputEl.value.trim();
   if (!text) return;
   addUser(text);
+  chatHistory.push({role: "Χρήστης", text});
   inputEl.value = ""; updateCounter();
   sendBtn.disabled = true;
   typingEl.style.display = "block"; scroll();
@@ -441,30 +530,47 @@ async function sendSearch() {
     const res  = await fetch(`${API}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
+      body: JSON.stringify({ message: text, session_id: SESSION_ID }),
     });
     const data = await res.json();
     typingEl.style.display = "none";
     if (data.is_fallback) {
-      addBot(data.answer.replace(/\n/g, "<br>"), false);
+      let h = data.answer.replace(/\n/g, "<br>");
+      h += getTicketFormHTML();
+      addBot(h, false);
+      chatHistory.push({role: "Bot", text: "[Fallback]"});
+    } else if (data.is_disambiguation) {
+      let h = `${data.answer.replace(/\n/g, "<br>")}<br><div class="nav-buttons" style="margin-top: 12px;">`;
+      data.options.forEach(opt => {
+        h += `<button class="nav-btn q-btn" onclick="fetchRelated('${esc(opt.question)}')">
+          <span class="nav-icon">${sevDot(opt.severity)}</span>
+          <span class="nav-text">${opt.question}</span>
+        </button>`;
+      });
+      h += `</div>`;
+      addBot(h, false);
     } else {
-      let h = `<span class="category-tag ${tagClass(data.category)}">${tagIcon(data.category)} ${data.category}</span>`;
-      if (data.subcategory) h += ` <span class="category-tag tag-blue" style="margin-left:4px">${data.subcategory}</span>`;
+      let h = "";
+      if (data.product) h += `<span class="category-tag tag-green">${data.product}</span> `;
+      if (data.severity) h += `<span class="category-tag ${sevClass(data.severity)}">${data.severity_icon || '🔵'} ${data.severity_label || ''}</span>`;
       h += `<div class="matched">📌 ${data.matched_question}</div>`;
       h += data.answer.replace(/\n/g, "<br>");
+      if (data.matched_question) {
+        h += getFeedbackHTML(data.matched_question, text);
+      }
       if (data.related_questions && data.related_questions.length > 0) {
-        h += `<div class="related-section"><div class="related-label">💡 Μήπως εννοείτε;</div>`;
+        h += `<div class="related-section"><div class="related-label">💡 Σχετικές ερωτήσεις</div>`;
         data.related_questions.forEach(r => {
-          let short = r.question.length > 72 ? r.question.slice(0, 70) + "…" : r.question;
           h += `<button class="related-btn" onclick="fetchRelated('${esc(r.question)}')">
-            <span class="rel-icon">${tagIcon(r.category)}</span>
-            <span class="rel-text">${short}</span>
+            <span class="rel-icon">${r.severity_icon || '🔵'}</span>
+            <span class="rel-text">${r.question}</span>
             <span class="rel-conf">${confLabel(r.confidence)}</span>
           </button>`;
         });
         h += `</div>`;
       }
       addBot(h);
+      chatHistory.push({role: "Bot", text: data.matched_question || data.answer.substring(0,80)});
     }
   } catch {
     typingEl.style.display = "none";
@@ -476,23 +582,41 @@ async function sendSearch() {
 
 async function fetchRelated(question) {
   addUser(question);
+  chatHistory.push({role: "Χρήστης", text: question});
   typingEl.style.display = "block"; scroll();
   try {
     const res  = await fetch(`${API}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: question }),
+      body: JSON.stringify({ message: question, session_id: SESSION_ID }),
     });
     const data = await res.json();
     typingEl.style.display = "none";
     if (data.is_fallback) {
-      addBot(data.answer.replace(/\n/g, "<br>"), false);
+      let h = data.answer.replace(/\n/g, "<br>");
+      h += getTicketFormHTML();
+      addBot(h, false);
+    } else if (data.is_disambiguation) {
+      let h = `${data.answer.replace(/\n/g, "<br>")}<br><div class="nav-buttons" style="margin-top: 12px;">`;
+      data.options.forEach(opt => {
+        h += `<button class="nav-btn q-btn" onclick="fetchRelated('${esc(opt.question)}')">
+          <span class="nav-icon">${sevDot(opt.severity)}</span>
+          <span class="nav-text">${opt.question}</span>
+        </button>`;
+      });
+      h += `</div>`;
+      addBot(h, false);
     } else {
-      let h = `<span class="category-tag ${tagClass(data.category)}">${tagIcon(data.category)} ${data.category}</span>`;
-      if (data.subcategory) h += ` <span class="category-tag tag-blue" style="margin-left:4px">${data.subcategory}</span>`;
+      let h = "";
+      if (data.product) h += `<span class="category-tag tag-green">${data.product}</span> `;
+      if (data.severity) h += `<span class="category-tag ${sevClass(data.severity)}">${data.severity_icon || '🔵'} ${data.severity_label || ''}</span>`;
       h += `<div class="matched">📌 ${data.matched_question}</div>`;
       h += data.answer.replace(/\n/g, "<br>");
+      if (data.matched_question) {
+        h += getFeedbackHTML(data.matched_question, question);
+      }
       addBot(h);
+      chatHistory.push({role: "Bot", text: data.matched_question || ""});
     }
   } catch {
     typingEl.style.display = "none";
@@ -500,7 +624,7 @@ async function fetchRelated(question) {
   }
 }
 
-showCategories();
+showProducts();
 </script>
 </body>
 </html>
